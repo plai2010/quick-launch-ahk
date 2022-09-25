@@ -4,6 +4,10 @@
 buildMenuForDir(dir, menuName, submenuPrefix) {
 	global myScriptName
 
+	EnvGet, windowsDir, windir
+
+	dirIconFile := myScriptName ".ico"
+
 ;	MsgBox, Building '%menuName%': dir=%dir%
 	; Add shortcuts as menu items.
 	itemCount := 0
@@ -36,31 +40,50 @@ buildMenuForDir(dir, menuName, submenuPrefix) {
 			}
 			if (buildMenuForDir(filePath, submenuName, submenuName)) {
 				Menu, %menuName%, Add, %submenuLabel%, :%submenuName%
-				if (FileExist(iconPath := filePath "\" myScriptName ".ico"))
+				if (fileCheck(iconPath := filePath "\" dirIconFile))
 					Menu, %menuName%, Icon, %submenuLabel%, %iconPath%
 				subdirNum += 1
 			}
 			Continue
 		}
 
-		; Expect only shortcuts.
-		if (fileExt != "lnk")
+		; Skip directory icon file.
+		if (fileNameSame(fileName, dirIconFile))
 			Continue
-		if (itemCount == 0)
-			launcher := Func("launchMenuItem").Bind(dir)
+
+		; Icon handling based on file type.
+		iconFile := 0
+		iconSetter := 0
+		if (fileExt == "lnk")
+			iconSetter := "setShortcutMenuIcon"
+		else if (fileExt == "cmd" || fileExt == "bat")
+			iconFile := windowsDir "\System32\cmd.exe"
+		else if (fileExt == "exe")
+			iconFile := filePath
+
+		launcher := Func("launchMenuItem").Bind(filePath)
 		itemCount += 1
 
 		Menu, %menuName%, Add, %fileBase%, % launcher
-		setShortcutMenuIcon(filePath, menuName, fileBase)
+		if (iconSetter)
+			%iconSetter%(filePath, menuName, fileBase)
+		else if (iconFile) {
+			try {
+			;	MsgBox, Setting icon for '%shortcut%': %iconFile%
+				Menu, %menuName%, Icon, %fileBase%, %iconFile%
+			}
+			catch err {
+			;	showError("Error setting icon for '" shortcut "': " err)
+			}
+		}
 	}
 	return itemCount + subdirNum - 1
 }
 ;-----------------------------------------------------------------------
-launchMenuItem(itemDir, itemName) {
-	shortcut := itemDir "\" itemName ".lnk"
+launchMenuItem(filePath, itemName, itemPos, menuName) {
 	try {
-	;	MsgBox, Running '%shortcut%'
-		Run, %shortcut%
+	;	MsgBox, Running '%filePath%'
+		Run, %filePath%
 	}
 	catch err {
 		showError("Failed to launch '" itemName "'.")
@@ -70,11 +93,18 @@ launchMenuItem(itemDir, itemName) {
 setShortcutMenuIcon(shortcut, menuName, itemName) {
 	try {
 		FileGetShortcut, %shortcut%, target, dir, args, desc, icon, iconNum
-	;	MsgBox, %shortcut%: icon=%icon% iconNum=%iconNum%
-		if (icon != "") {
+	;	MsgBox, %shortcut%: icon=%icon% iconNum=%iconNum% target=%target
+		if (icon != "")
 			Menu, %menuName%, Icon, %itemName%, %icon%, %iconNum%
-			return 1
+		else {
+			; TODO: Target may be a command with arguments, and it
+			; may even contain envrionment variable references.
+			if (fileCheck(target)) {
+			;	MsgBox, Setting '%itemName%' icon: %target%
+				Menu, %menuName%, Icon, %itemName%, %target%
+			}
 		}
+		return 1
 	}
 	catch err {
 	;	showError("Error getting icon for '" shortcut "': " err)

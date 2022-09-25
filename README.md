@@ -43,7 +43,7 @@ then one may run these commands:
 	"%UserProfile%\quick-launch-ahk\quick-launch.ahk"
 
 and get a system tray menu like this:
-[`example-quick-launch.png`](doc/images/example-quick-launch.png)
+![`example-quick-launch.png`](doc/images/example-quick-launch.png)
 
 Right-click on the icon to bring up expand the menu.
 
@@ -61,13 +61,16 @@ Here are some more details about `quick-launch-ahk`:
 1. Changes to the folder are not reflected automatically in the menu.
 Select `Reload` to refresh menu as needed.
 
+1. Menu items are not limited to shortcuts. On the other hand, shortcuts
+with explicit icon setting work best.
+
 ## Customization ##
 
 The icon for menu in the system tray is configurable. Simply put
 a `quick-launch.ico` file in the menu folder. This works for sub-folders
 as well. For example, here both the menu folder and the "`Ubuntu Terminals`"
 sub-folder have a custom icon:
-[`example-demo.png`](doc/images/example-demo.png)
+![`example-demo.png`](doc/images/example-demo.png)
 
 One may rename the script or the compiled executable. For example, if
 the executable is saved as `foobar.exe`, the custom icon files should

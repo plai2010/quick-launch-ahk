@@ -20,9 +20,9 @@ buildMenu(toolbarDirPath) {
 	Menu, Tray, DeleteAll
 	Menu, Tray, Click, 1
 	Menu, Tray, Tip, Toolbar: %toolbarName%
-	if (FileExist(iconPath := toolbarDirPath "\" myScriptName ".ico"))
+	if (fileCheck(iconPath := toolbarDirPath "\" myScriptName ".ico"))
 		Menu, Tray, Icon, %iconPath%
-	else if (FileExist(iconPath := A_ScriptDir "\icons\menu-list-blue.ico"))
+	else if (fileCheck(iconPath := A_ScriptDir "\icons\menu-list-blue.ico"))
 		Menu, Tray, Icon, %iconPath%
 
 	buildMenuForDir(toolbarDirPath, "Tray", "Submenu")
@@ -38,6 +38,19 @@ buildMenu(toolbarDirPath) {
 ;-----------------------------------------------------------------------
 doExit() {
 	ExitApp
+}
+;-----------------------------------------------------------------------
+fileCheck(filePath) {
+	attrs := FileExist(filePath)
+	if (attrs == "" || InStr(attrs, "D"))
+		return 0
+	return 1
+}
+;-----------------------------------------------------------------------
+fileNameSame(f1, f2) {
+	StringLower f1, f1
+	StringLower f2, f2
+	return f1 == f2 ? 1 : 0
 }
 ;-----------------------------------------------------------------------
 showError(msg) {
