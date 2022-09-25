@@ -1,36 +1,58 @@
 ; AHK script to launch programs from system tray.
 ; This is like Windows "Quick Launch" toolbar.
 ; Copyright (c) 2022 Patrick Lai
-
+;-----------------------------------------------------------------------
 ;	#NoTrayIcon
+	#Persistent
+	#SingleInstance Off
 
 	#Include, %A_ScriptDir%\lib\menu-builder.ahk
 
-	SplitPath, A_WorkingDir, , , , dirName
-
+	SplitPath, A_ScriptName, , , , myScriptName
+	buildMenu(A_WorkingDir)
 ;-----------------------------------------------------------------------
+buildMenu(toolbarDirPath) {
+	global myScriptName
+
+	SplitPath, toolbarDirPath, , , , toolbarName
+
 	Menu, Tray, NoStandard
+	Menu, Tray, DeleteAll
 	Menu, Tray, Click, 1
-	Menu, Tray, Tip, Quick Launch (%dirName%)
+	Menu, Tray, Tip, Toolbar: %toolbarName%
+	if (FileExist(iconPath := toolbarDirPath "\" myScriptName ".ico"))
+		Menu, Tray, Icon, %iconPath%
+	else if (FileExist(iconPath := A_ScriptDir "\icons\menu-list-blue.ico"))
+		Menu, Tray, Icon, %iconPath%
 
-;	Menu, Tray, Add
-;	buildMenuForDir(A_WorkingDir "\Tools", "Tray", "Submenu")
-	buildMenuForDir(A_WorkingDir, "Tray", "Submenu")
+	buildMenuForDir(toolbarDirPath, "Tray", "Submenu")
 
-;	------------------------------------------------
+	;------------------------------------------------
+	; Reload and Exit menu items.
+	;------------------------------------------------
+	reloader := Func("buildMenu").Bind(toolbarDirPath)
 	Menu, Tray, Add
-
+	Menu, Tray, Add, Reload, % reloader
 	Menu, Tray, Add, Exit, doExit
-	Menu, Tray, NoIcon, Exit
-
-	!^#t::showMenu("Tray")
+}
 ;-----------------------------------------------------------------------
-	doExit() {
-		ExitApp
-	}
+doExit() {
+	ExitApp
+}
+;-----------------------------------------------------------------------
+showError(msg) {
+	global myScriptName
 
-	showMenu(menuName) {
-		Menu, %menuName%, Show
-	}
+	title := myScriptName
+	StringReplace, title, title, -, %A_Space%, All
+	StringReplace, title, title, ., %A_Space%, All
+	StringUpper, title, title, T
 
+	MsgBox, 16, %title%, %msg%
+}
+;-----------------------------------------------------------------------
+showMenu(menuName) {
+	Menu, %menuName%, Show
+}
+;-----------------------------------------------------------------------
 ; vim: set ts=4 noexpandtab:
