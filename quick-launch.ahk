@@ -20,8 +20,8 @@ buildMenu(toolbarDirPath) {
 	Menu, Tray, DeleteAll
 	Menu, Tray, Click, 1
 	Menu, Tray, Tip, Toolbar: %toolbarName%
-	if (fileCheck(iconPath := toolbarDirPath "\" myScriptName ".ico"))
-		Menu, Tray, Icon, %iconPath%
+	if (icon := getIconForDirectory(toolbarDirPath))
+		Menu, Tray, Icon, % icon[1], % icon[2]
 	else if (fileCheck(iconPath := A_ScriptDir "\icons\menu-list-blue.ico"))
 		Menu, Tray, Icon, %iconPath%
 
@@ -51,6 +51,42 @@ fileNameSame(f1, f2) {
 	StringLower f1, f1
 	StringLower f2, f2
 	return f1 == f2 ? 1 : 0
+}
+;-----------------------------------------------------------------------
+getIconForDirectory(dirPath) {
+	global myScriptName
+
+	; Use ico file with script name, if available, in the directory.
+	if (fileCheck(iconPath := dirPath "\" myScriptName ".ico")) {
+		return [ iconPath, 1 ]
+	}
+
+	destopIni := dirPath "\desktop.ini"
+
+	; Check for IconResource info in desktop.ini file.
+	IniRead, iconResource, %dirPath%\desktop.ini, .ShellClassInfo, IconResource
+	if (iconResource != "") {
+		StringGetPos, commaIndex, iconResource, `,, R1
+		if (ErrorLevel != 0) {
+			return [ iconResource, 1 ]
+		}
+		else {
+			iconFile := SubStr(iconResource, 1, commaIndex)
+			iconIndex := 0 + SubStr(iconResource, commaIndex + 2)
+			iconNumber := iconIndex >= 0 ? iconIndex + 1 : iconIndex
+			return [ iconFile, iconNumber ]
+		}
+	}
+
+	; Check for iconFile and iconIndex in desktop.ini file.
+	IniRead, iconFile, %desktopIni%, .ShellClassInfo, IconFile,
+	if (iconFile != "") {
+		IniRead, iconIndex, %desktopIni%, .ShellClassInfo, IconIndex,
+		iconNumber := iconIndex != "" ? iconIndex + 1 : 1
+		return [ iconFile, iconNumber ]
+	}
+
+	return 0
 }
 ;-----------------------------------------------------------------------
 showError(msg) {

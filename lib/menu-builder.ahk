@@ -40,8 +40,8 @@ buildMenuForDir(dir, menuName, submenuPrefix) {
 			}
 			if (buildMenuForDir(filePath, submenuName, submenuName)) {
 				Menu, %menuName%, Add, %submenuLabel%, :%submenuName%
-				if (fileCheck(iconPath := filePath "\" dirIconFile))
-					Menu, %menuName%, Icon, %submenuLabel%, %iconPath%
+				if (icon := getIconForDirectory(filePath))
+					Menu, %menuName%, Icon, %submenuLabel%, % icon[1], % icon[2]
 				subdirNum += 1
 			}
 			Continue

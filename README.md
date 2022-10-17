@@ -67,16 +67,17 @@ with explicit icon setting work best.
 
 ## Customization ##
 
-The icon for menu in the system tray is configurable. Simply put
-a `quick-launch.ico` file in the menu folder. This works for sub-folders
-as well. For example, here both the menu folder and the "`Ubuntu Terminals`"
-sub-folder have a custom icon:
+The icon for menu in the system tray is configurable, as is any submenu icon.
+Quick Launch AHK honors the icon resource specified in the `desktop.ini`
+file of a folder, so simply customize the icon of the folder through Windows.
+For example, here both the menu folder and the "`Ubuntu Terminals`"
+submenu have a custom icon:
 
 ![`example-demo.png`](doc/images/example-demo.png)
 
-One may rename the script or the compiled executable. For example, if
-the executable is saved as `foobar.exe`, the custom icon files should
-then be `foobar.ico`.
+If a `quick-launch.ico` file exists in the menu folder, it takes precedence
+over the `desktop.ini` setting. When the script or the compiled executable
+is renamed, the name of the custom icon file is expected to follow.
 
 ## Acknowledgment ##
 
