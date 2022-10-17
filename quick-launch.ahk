@@ -61,10 +61,10 @@ getIconForDirectory(dirPath) {
 		return [ iconPath, 1 ]
 	}
 
-	destopIni := dirPath "\desktop.ini"
+	dsktopIni := dirPath "\desktop.ini"
 
 	; Check for IconResource info in desktop.ini file.
-	IniRead, iconResource, %dirPath%\desktop.ini, .ShellClassInfo, IconResource
+	IniRead, iconResource, %dsktopIni%, .ShellClassInfo, IconResource, %A_Space%
 	if (iconResource != "") {
 		StringGetPos, commaIndex, iconResource, `,, R1
 		if (ErrorLevel != 0) {
@@ -79,9 +79,9 @@ getIconForDirectory(dirPath) {
 	}
 
 	; Check for iconFile and iconIndex in desktop.ini file.
-	IniRead, iconFile, %desktopIni%, .ShellClassInfo, IconFile,
+	IniRead, iconFile, %dsktopIni%, .ShellClassInfo, IconFile, %A_Space%
 	if (iconFile != "") {
-		IniRead, iconIndex, %desktopIni%, .ShellClassInfo, IconIndex,
+		IniRead, iconIndex, %dsktopIni%, .ShellClassInfo, IconIndex, %A_Space%
 		iconNumber := iconIndex != "" ? iconIndex + 1 : 1
 		return [ iconFile, iconNumber ]
 	}
